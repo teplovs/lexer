@@ -6,6 +6,22 @@ export class Position {
     public column: number,
     public index: number
   ) {}
+
+  add(line: number, column: number, index: number) {
+    return new Position(
+      this.line + line,
+      this.column + column,
+      this.index + index
+    )
+  }
+
+  clone() {
+    return this.add(0, 0, 0)
+  }
+
+  toString() {
+    return `${this.line}:${this.column}`
+  }
 }
 
 export class Token {
