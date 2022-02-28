@@ -1,18 +1,12 @@
 // Copyright (c) 2022 Ivan Teplov
 
-import XRegExp from "xregexp"
-
-export type Rule =
-  { pattern: string, flags?: string }
-  | RegExp
-
-export type RulesEntry = Rule | Rule[]
+export type Rule = RegExp | RegExp[]
 
 export type Rules = {
-  [ruleName: string]: RulesEntry
+  [ruleName: string]: Rule
 }
 
-export function ruleMatches(input: string, rule: RulesEntry): string | undefined {
+export function ruleMatches(input: string, rule: Rule): string | undefined {
   // If an array of rules is passed
   if (rule instanceof Array) {
     // Iterate over variants of the rule
@@ -28,13 +22,9 @@ export function ruleMatches(input: string, rule: RulesEntry): string | undefined
     return
   }
 
-  const regularExpression = !(rule instanceof RegExp)
-    ? XRegExp(rule.pattern, rule.flags ?? "")
-    : rule
-
   // If a regular expression is passed
   // then check for a match
-  const match = XRegExp.exec(input, regularExpression)
+  const match = rule.exec(input)
 
   // If there is a match and it's at the start of the string,
   // then return it

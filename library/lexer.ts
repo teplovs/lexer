@@ -10,6 +10,11 @@ export class Lexer implements Iterable<Token> {
 
   constructor(public input: string, public rules: Rules) {}
 
+  /**
+   * Get the next token from the input string
+   * @throws {LexerError}
+   * @returns undefined if reached end of input, else the next token
+   */
   nextToken(): Token | undefined {
     // If reached end of file
     if (this.position.index >= this.input.length)
@@ -70,8 +75,32 @@ export class Lexer implements Iterable<Token> {
     )
   }
 
-  tokenize() {
-    return Array.from(this)
+  /**
+   * Reset lexer's position
+   */
+  reset() {
+    this.position = new Position(1, 1, 0)
+  }
+
+  /**
+   * Tokenize the input string and return an array of tokens
+   * @param resetPositionBeforeTokenizing - reset lexer's position before tokenizing
+   * @param resetPositionAfterTokenizing - reset lexer's position after tokenizing
+   * @returns an array of tokens
+   */
+  tokenize(
+    resetPositionBeforeTokenizing = true,
+    resetPositionAfterTokenizing = true
+  ) {
+    if (resetPositionBeforeTokenizing)
+      this.reset()
+
+    const result = Array.from(this)
+
+    if (resetPositionAfterTokenizing)
+      this.reset()
+
+    return result
   }
 
   *[Symbol.iterator](): Iterator<Token> {
