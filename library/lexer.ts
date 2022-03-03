@@ -7,6 +7,15 @@ import { LexerError } from "./exceptions"
 export type LexerOptions = {
   // List of token types to skip
   skip?: string[]
+
+  // Type of token that will be returned when reached
+  // end of file
+  endOfFileTokenType?: string
+}
+
+const defaultOptions: LexerOptions = {
+  skip: [],
+  endOfFileTokenType: "endOfFile"
 }
 
 export class Lexer implements Iterable<Token> {
@@ -17,17 +26,34 @@ export class Lexer implements Iterable<Token> {
     public input: string,
     public rules: Rules,
     public options: LexerOptions = {}
-  ) {}
+  ) {
+    this.options = {
+      ...defaultOptions,
+      ...this.options
+    }
+
+    this.options.endOfFileTokenType =
+      this.options.endOfFileTokenType ||
+      defaultOptions.endOfFileTokenType!
+  }
 
   /**
    * Get the next token from the input string
    * @throws {LexerError}
-   * @returns undefined if reached end of input, else the next token
+   * @returns a token
    */
-  nextToken(): Token | undefined {
+  nextToken(): Token {
     // If reached end of file
-    if (this.position.index >= this.input.length)
-      return
+    if (this.position.index >= this.input.length) {
+      return new Token(
+        this.options.endOfFileTokenType!,
+        "",
+        {
+          start: this.position.clone(),
+          end: this.position.clone()
+        }
+      )
+    }
 
     const match = this.#findMatch()
 
@@ -123,9 +149,9 @@ export class Lexer implements Iterable<Token> {
 
   *[Symbol.iterator](): Iterator<Token> {
     let token
+    const endOfFile = this.options.endOfFileTokenType
 
-    while (token = this.nextToken()) {
+    while ((token = this.nextToken()).type !== endOfFile)
       yield token
-    }
   }
 }
