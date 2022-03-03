@@ -23,7 +23,7 @@ const code = "print '👋'"
 // Lexer rules
 const rules = {
   print: /\b(print)\b/,
-  string: /'([^']|\\.)*'/,
+  string: /'([^'\\]|\\.)*'/,
   space: /( |\t)+/
 }
 
@@ -85,7 +85,7 @@ For example, a string:
 
 ```javascript
 const rules = {
-  string: /"([^"]|\\.)*"|'([^']|\\.)*'/
+  string: /"([^"\\]|\\.)*"|'([^'\\]|\\.)*'/
 }
 ```
 
@@ -94,8 +94,8 @@ It looks even more difficult to understand. So that's the point where we can use
 ```javascript
 const rules = {
   string: [
-    /"([^"]|\\.)*"/,
-    /'([^']|\\.)*'/
+    /"([^"\\]|\\.)*"/,
+    /'([^'\\]|\\.)*'/
   ]
 }
 ```
