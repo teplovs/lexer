@@ -4,11 +4,20 @@ import { Token, Position } from "./token"
 import { Rules, ruleMatches } from "./rules"
 import { LexerError } from "./exceptions"
 
+export type LexerOptions = {
+  // List of token types to skip
+  skip?: string[]
+}
+
 export class Lexer implements Iterable<Token> {
   // Current lexer position
   position = new Position(1, 1, 0)
 
-  constructor(public input: string, public rules: Rules) {}
+  constructor(
+    public input: string,
+    public rules: Rules,
+    public options: LexerOptions = {}
+  ) {}
 
   /**
    * Get the next token from the input string
@@ -35,11 +44,20 @@ export class Lexer implements Iterable<Token> {
 
     this.position = end.clone()
 
-    return new Token(
+    const token = new Token(
       match.ruleName,
       match.value,
       { start, end }
     )
+
+    if (
+      this.options.skip instanceof Array &&
+      this.options.skip.indexOf(token.type) >= 0
+    ) {
+      return this.nextToken()
+    }
+
+    return token
   }
 
   #findMatch() {

@@ -1,11 +1,11 @@
 // Copyright (c) 2022 Ivan Teplov
 
-import { Lexer } from "../library/lexer"
+import { Lexer, LexerOptions } from "../library/lexer"
 import { Rules } from "../library/rules"
 import { Token, Position } from "../library/token"
 
-const tokenize = (input: string, rules: Rules) =>
-  new Lexer(input, rules).tokenize()
+const tokenize = (input: string, rules: Rules, options?: LexerOptions) =>
+  new Lexer(input, rules, options).tokenize()
 
 describe("Lexer", () => {
   it("tokenizes correctly", () => {
@@ -136,6 +136,22 @@ describe("Lexer", () => {
       new Token("emoji", "✨", {
         start: new Position(1, 2, 2),
         end: new Position(1, 3, 3)
+      })
+    ])
+  })
+
+  it("allows skipping certain types of tokens", () => {
+    expect(
+      tokenize(" 3.1415 ", {
+        whitespace: /\s+/,
+        number: /[0-9]+(\.[0-9]+)?/
+      }, {
+        skip: ["whitespace"]
+      })
+    ).toEqual([
+      new Token("number", "3.1415", {
+        start: new Position(1, 2, 1),
+        end: new Position(1, 8, 7)
       })
     ])
   })
