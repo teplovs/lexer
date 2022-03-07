@@ -174,7 +174,7 @@ lexer.nextToken()
 
 Returns `undefined` when reached **end of input**
 
-#### `tokenize(resetPositionBeforeTokenizing: boolean = true, resetPositionAfterTokenizing: boolean = true): Token[]`
+#### `tokenize(): Token[]`
 
 ```javascript
 lexer.tokenize()
@@ -182,9 +182,14 @@ lexer.tokenize()
 
 Returns an array of tokens.
 
-**Arguments**:
-- `resetPositionBeforeTokenizing` - if `true`, then the lexer will reset position before tokenizing, so that it tokenizes from the start of the input string.
-- `resetPositionAfterTokenizing` - if `true`, then the lexer will reset position after tokenizing.
+**Note**: lexer does not reset current position when calling this function.
+
+```javascript
+lexer.tokenize() // [...] (array with tokens)
+lexer.tokenize() // [] (empty array)
+```
+
+But if you prepend `lexer.reset()` before the second call, then you probably won't get an empty array.
 
 ### `Token`
 

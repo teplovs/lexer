@@ -130,23 +130,10 @@ export class Lexer implements Iterable<Token> {
 
   /**
    * Tokenize the input string and return an array of tokens
-   * @param resetPositionBeforeTokenizing - reset lexer's position before tokenizing
-   * @param resetPositionAfterTokenizing - reset lexer's position after tokenizing
    * @returns an array of tokens
    */
-  tokenize(
-    resetPositionBeforeTokenizing = true,
-    resetPositionAfterTokenizing = true
-  ) {
-    if (resetPositionBeforeTokenizing)
-      this.reset()
-
-    const result = Array.from(this)
-
-    if (resetPositionAfterTokenizing)
-      this.reset()
-
-    return result
+  tokenize() {
+    return Array.from(this)
   }
 
   *[Symbol.iterator](): Iterator<Token> {
