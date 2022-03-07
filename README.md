@@ -123,20 +123,7 @@ There are three ways to work with tokens:
 2. Call `Lexer#nextToken()` to get the next token (returns `undefined` if reached the end of input)
 3. Use for-of loop and iterate over tokens: `for (const token of lexer)`
 
-#### Important note for `Lexer#tokenize()`
-
-By default, `Lexer#tokenize()` resets the lexer's position, tokenizes an input string from start, and then resets the lexer's position again. That's made in order for this to work:
-
-```javascript
-// ...
-
-for (const token of lexer) {
-  // ...
-}
-
-// ...
-lexer.tokenize() // this won't return an empty array
-```
+Checkout API for more in-depth understanding of how these methods work.
 
 ## API
 
