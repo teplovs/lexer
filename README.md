@@ -20,15 +20,17 @@ import { Lexer } from "@teplovs/lexer"
 // Lexer input
 const code = "print '👋'"
 
-// Lexer rules
-const rules = {
-  print: /\b(print)\b/,
-  string: /'([^'\\]|\\.)*'/,
-  space: /( |\t)+/
+class MyLexer extends Lexer {
+  // Lexer rules
+  static rules = {
+    print: /\b(print)\b/,
+    string: /'([^'\\]|\\.)*'/,
+    space: /( |\t)+/
+  }
 }
 
 // Initialize a lexer
-const lexer = new Lexer(code, rules)
+const lexer = new MyLexer(code)
 
 // Run the lexer and save tokens as an array
 const tokens = lexer.tokenize()
@@ -140,7 +142,11 @@ lexer.tokenize() // this won't return an empty array
 
 ### `Lexer`
 
-#### `constructor(input: string, rules: Rules)`
+#### `static rules: Rules`
+
+An object with rules
+
+#### `constructor(input: string, options?: LexerOptions)`
 
 ```javascript
 new Lexer(inputString, rules)
@@ -148,7 +154,9 @@ new Lexer(inputString, rules)
 
 **Arguments**:
 - `inputString` - a string to tokenize
-- `rules` - an object with lexer rules
+- `options` - an object with lexer options
+  - `skip` - an array of token types that should be skipped (default: `[]`)
+  - `endOfFileTokenType` - type of token that will be returned when reaching end of file (default: `"endOfFile"`)
 
 #### `reset()`
 

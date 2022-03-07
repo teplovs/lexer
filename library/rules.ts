@@ -22,13 +22,20 @@ export function ruleMatches(input: string, rule: Rule): string | undefined {
     return
   }
 
+  // Make the rule match only at the `lastIndex` position
+  const updatedRule = new RegExp(
+    rule.source,
+    rule.flags + (rule.sticky ? "" : "y")
+  )
+
+  // Match only at the start of the string
+  updatedRule.lastIndex = 0
+
   // If a regular expression is passed
   // then check for a match
-  const match = rule.exec(input)
+  const match = updatedRule.exec(input)
 
-  // If there is a match and it's at the start of the string,
-  // then return it
-  if (match?.index === 0) {
+  // If there is a match, then return it
+  if (match)
     return match[0]
-  }
 }

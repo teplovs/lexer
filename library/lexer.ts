@@ -19,12 +19,13 @@ const defaultOptions: LexerOptions = {
 }
 
 export class Lexer implements Iterable<Token> {
+  static rules: Rules = {}
+
   // Current lexer position
   position = new Position(1, 1, 0)
 
   constructor(
     public input: string,
-    public rules: Rules,
     public options: LexerOptions = {}
   ) {
     this.options = {
@@ -88,8 +89,9 @@ export class Lexer implements Iterable<Token> {
 
   #findMatch() {
     const input = this.input.substring(this.position.index)
+    const rules = (this.constructor as typeof Lexer).rules
 
-    for (const [ruleName, rule] of Object.entries(this.rules)) {
+    for (const [ruleName, rule] of Object.entries(rules)) {
       const match = ruleMatches(input, rule)
 
       if (match !== undefined) {
