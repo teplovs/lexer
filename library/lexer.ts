@@ -56,9 +56,9 @@ export class Lexer implements Iterable<Token> {
       )
     }
 
-    const match = this.#findMatch()
+    const ruleMatch = this.#findMatch()
 
-    if (!match) {
+    if (!ruleMatch) {
       const character = JSON.stringify(this.input.charAt(this.position.index))
       throw new LexerError(
         `Unexpected character ${character} at ${this.position}`,
@@ -66,14 +66,15 @@ export class Lexer implements Iterable<Token> {
       )
     }
 
+    const fullMatch = ruleMatch.matchArray[0]
     const start = this.position.clone()
-    const end = this.#calculateEndPosition(match.value)
+    const end = this.#calculateEndPosition(fullMatch)
 
     this.position = end.clone()
 
     const token = new Token(
-      match.ruleName,
-      match.value,
+      ruleMatch.ruleName,
+      ruleMatch.value,
       { start, end }
     )
 
@@ -91,13 +92,15 @@ export class Lexer implements Iterable<Token> {
     const input = this.input.substring(this.position.index)
     const rules = (this.constructor as typeof Lexer).rules
 
-    for (const [ruleName, rule] of Object.entries(rules)) {
-      const match = ruleMatches(input, rule)
+    for (const ruleName in rules) {
+      const rule = rules[ruleName]
+      const ruleMatch = ruleMatches(input, rule)
 
-      if (match !== undefined) {
+      if (ruleMatch !== undefined) {
         return {
           ruleName,
-          value: match
+          matchArray: ruleMatch[0],
+          value: ruleMatch[1]
         }
       }
     }

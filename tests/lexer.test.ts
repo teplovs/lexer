@@ -161,4 +161,37 @@ describe("Lexer", () => {
       })
     ])
   })
+
+  it("lets the user control what value the token will have", () => {
+    const supportsNamedGroups = +process.versions.node.split('.')[0] >= 14
+
+    supportsNamedGroups &&
+    expect(
+      tokenize("'Hello, World!'", {
+        string: {
+          pattern: /'(?<stringContents>([^'\\]|\\.)*)'/,
+          tokenValue: (match) => match.groups!.stringContents
+        }
+      })
+    ).toEqual([
+      new Token("string", "Hello, World!", {
+        start: new Position(1, 1, 0),
+        end: new Position(1, 16, 15)
+      })
+    ])
+
+    expect(
+      tokenize("'Hello, World!'", {
+        string: {
+          pattern: /'(([^'\\]|\\.)*)'/,
+          tokenValue: (match) => match[1]
+        }
+      })
+    ).toEqual([
+      new Token("string", "Hello, World!", {
+        start: new Position(1, 1, 0),
+        end: new Position(1, 16, 15)
+      })
+    ])
+  })
 })

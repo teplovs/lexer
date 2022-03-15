@@ -12,7 +12,7 @@ yarn add @teplovs/lexer
 
 ## Usage
 
-### Example
+### Code example
 
 ```javascript
 import { Lexer } from "@teplovs/lexer"
@@ -37,6 +37,8 @@ const tokens = lexer.tokenize()
 ```
 
 ### Defining rules
+
+#### Basic rules
 
 To tell the lexer how to tokenize a string, we need to define rules. To do that, we use an object, where each key corresponds to a token type, and each value corresponds to a regular expression for parsing a token value.
 
@@ -116,6 +118,21 @@ const rules = {
 
 Here, the **order of regular expressions matters** too!
 
+#### More advanced rules
+
+Now let's make more advanced rules! For example, we want to tokenize a string but we don't want quotes to get into the token's value. For this we have a `tokenValue` function:
+
+```javascript
+const rules = {
+  string: {
+    pattern: /'(([^'\\]|\\.)*)'/,
+    tokenValue: (match) => match[1]
+  }
+}
+```
+
+`tokenValue` function takes a value that is returned when calling `regularExpression.exec(string)` as an argument. `tokenValue` has to return a string. The returned string will become the token's value.
+
 ### Working with tokens
 
 There are three ways to work with tokens:
@@ -178,6 +195,23 @@ lexer.tokenize() // [] (empty array)
 
 But if you prepend `lexer.reset()` before the second call, then you probably won't get an empty array.
 
+### `Rule`
+
+```typescript
+type Rule = RegExp | {
+  pattern: RegExp,
+  tokenValue?: (match: RegExpMatchArray) => string
+}
+```
+
+### `Rules`
+
+```typescript
+type Rules = {
+  [ruleName: string]: Rule | Rule[]
+}
+```
+
 ### `Token`
 
 ```typescript
@@ -215,19 +249,27 @@ class LexerError extends Error {
 
 Position in the input where the error occurred.
 
-### `ruleMatches(input: string, rule: Rule): string | undefined`
+### `ruleMatches(input: string, rule: Rule | Rule[]): [RegExpMatchArray, string] | undefined`
 
 Function used by the lexer for checking if there is a match in the input string to a rule.
+
+In the returned array, the first argument is the result of calling a `regularExpression.exec(inputString)` function, and the second argument is the resulting token's value.
 
 Example:
 
 ```javascript
-ruleMatches("10 11", /[0-9]+/) // returns "10"
+ruleMatches("10 11", /[0-9]+/) // returns ["10", "10"]
+
+ruleMatches("10 11", {
+  pattern: /[0-9]+/,
+  // convert value to a number
+  tokenValue: match => +match[0]
+}) // returns ["10", 10]
 
 ruleMatches("0xF 0b101", [
   /0b[0-1]+/,
   /0x[0-9a-fA-F]+/
-]) // returns "0xF"
+]) // returns ["0xF", "0xF"]
 ```
 
 ## Development

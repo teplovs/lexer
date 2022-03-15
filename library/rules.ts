@@ -1,12 +1,23 @@
 // Copyright (c) 2022 Ivan Teplov
 
-export type Rule = RegExp | RegExp[]
+type TokenValueGetter = (match: RegExpExecArray) => string
+
+const defaultTokenValue: TokenValueGetter =
+  (match: RegExpExecArray) => match[0]
+
+export type Rule = {
+  pattern: RegExp,
+  tokenValue?: TokenValueGetter
+} | RegExp
 
 export type Rules = {
-  [ruleName: string]: Rule
+  [ruleName: string]: Rule | Rule[]
 }
 
-export function ruleMatches(input: string, rule: Rule): string | undefined {
+export function ruleMatches(
+  input: string,
+  rule: Rule | Rule[]
+): [match: RegExpMatchArray, tokenValue: string] | undefined {
   // If an array of rules is passed
   if (rule instanceof Array) {
     // Iterate over variants of the rule
@@ -22,20 +33,34 @@ export function ruleMatches(input: string, rule: Rule): string | undefined {
     return
   }
 
+  let pattern
+
+  // Function to convert match array to token value
+  let getTokenValue = defaultTokenValue
+
+  if (rule instanceof RegExp) {
+    pattern = rule
+  } else {
+    pattern = rule.pattern
+
+    if (rule.tokenValue instanceof Function)
+      getTokenValue = (...args) => rule.tokenValue!(...args)
+  }
+
   // Make the rule match only at the `lastIndex` position
-  const updatedRule = new RegExp(
-    rule.source,
-    rule.flags + (rule.sticky ? "" : "y")
+  const regularExpression = new RegExp(
+    pattern.source,
+    pattern.flags + (pattern.sticky ? "" : "y")
   )
 
   // Match only at the start of the string
-  updatedRule.lastIndex = 0
+  regularExpression.lastIndex = 0
 
   // If a regular expression is passed
   // then check for a match
-  const match = updatedRule.exec(input)
+  const match = regularExpression.exec(input)
 
-  // If there is a match, then return it
+  // If there is a match, then return it and the converted value
   if (match)
-    return match[0]
+    return [match, getTokenValue(match)]
 }
