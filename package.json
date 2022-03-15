@@ -1,6 +1,6 @@
 {
   "name": "@teplovs/lexer",
-  "version": "2.0.0-alpha",
+  "version": "2.0.0-beta",
   "description": "JavaScript library for tokenizing strings with regular expressions",
   "author": "Ivan Teplov <iteplov7@gmail.com>",
   "license": "Apache-2.0",
