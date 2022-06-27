@@ -8,7 +8,8 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "test": "jest"
+    "test": "jest",
+    "test:with-coverage": "jest --collect-coverage"
   },
   "repository": {
     "type": "git",

@@ -1,17 +1,8 @@
 // Copyright (c) 2022 Ivan Teplov
 
-import { Lexer, LexerOptions } from "../library/lexer"
 import { Token, Position } from "../library/token"
-import { Rules } from "../library/rules"
-
-const tokenize = (input: string, rules: Rules, options?: LexerOptions) => {
-  class TestLexer extends Lexer {
-    static rules = rules
-  }
-
-  const lexer = new TestLexer(input, options)
-  return lexer.tokenize()
-}
+import { Lexer } from "../library/lexer"
+import tokenize from "./helpers/tokenize"
 
 describe("Lexer", () => {
   it("tokenizes correctly", () => {
@@ -146,52 +137,46 @@ describe("Lexer", () => {
     ])
   })
 
-  it("allows skipping certain types of tokens", () => {
+  it("will match even if the regular expression already has 'y' flag and has 'lastIndex' set", () => {
     expect(
-      tokenize(" 3.1415 ", {
-        whitespace: /\s+/,
-        number: /[0-9]+(\.[0-9]+)?/
-      }, {
-        skip: ["whitespace"]
+      tokenize("helloWorld", {
+        word: (() => {
+          const regularExpression = /[a-zA-Z]+/y
+          regularExpression.lastIndex = 10
+          return regularExpression
+        })()
       })
     ).toEqual([
-      new Token("number", "3.1415", {
-        start: new Position(1, 2, 1),
-        end: new Position(1, 8, 7)
+      new Token("word", "helloWorld", {
+        start: new Position(1, 1, 0),
+        end: new Position(1, 11, 10)
       })
     ])
   })
 
-  it("lets the user control what value the token will have", () => {
-    const supportsNamedGroups = +process.versions.node.split('.')[0] >= 14
-
-    supportsNamedGroups &&
+  it("passes filePath to the Position as an argument", () => {
     expect(
-      tokenize("'Hello, World!'", {
-        string: {
-          pattern: /'(?<stringContents>([^'\\]|\\.)*)'/,
-          tokenValue: (match) => match.groups!.stringContents
-        }
-      })
-    ).toEqual([
-      new Token("string", "Hello, World!", {
-        start: new Position(1, 1, 0),
-        end: new Position(1, 16, 15)
-      })
-    ])
+      tokenize(
+        "0",
+        { number: /[0-9]+/ },
+        { filePath: "unknown" }
+      )[0]!.position.start
+    ).toHaveProperty("filePath", "unknown")
+  })
 
-    expect(
-      tokenize("'Hello, World!'", {
-        string: {
-          pattern: /'(([^'\\]|\\.)*)'/,
-          tokenValue: (match) => match[1]
-        }
-      })
-    ).toEqual([
-      new Token("string", "Hello, World!", {
-        start: new Position(1, 1, 0),
-        end: new Position(1, 16, 15)
-      })
-    ])
+  it("will start over if a user calls 'lexer#reset()'", () => {
+    class CustomLexer extends Lexer {
+      static rules = {
+        digit: /[0-9]/
+      }
+    }
+
+    const lexer = new CustomLexer("123456789")
+    expect(lexer.tokenize()).not.toEqual([])
+    expect(lexer.tokenize()).toEqual([])
+
+    lexer.reset()
+    expect(lexer.tokenize()).not.toEqual([])
   })
 })
+
