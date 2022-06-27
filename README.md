@@ -133,6 +133,18 @@ const rules = {
 
 `tokenValue` function takes a value that is returned when calling `regularExpression.exec(string)` as an argument. `tokenValue` has to return a string. The returned string will become the token's value.
 
+#### Changing rules of a certain lexer instance
+
+Sometimes we might need to change lexer rules only for one object (instance) without touching all the others. This can be achieved by changing the `rules` property on that object:
+
+```javascript
+const lexer = new CustomLexer("...")
+
+lexer.rules = {
+  // ...
+}
+```
+
 ### Working with tokens
 
 There are three ways to work with tokens:
@@ -161,6 +173,15 @@ new Lexer(inputString, rules)
 - `options` - an object with lexer options
   - `skip` - an array of token types that should be skipped (default: `[]`)
   - `endOfFileTokenType` - type of token that will be returned when reaching end of file (default: `"endOfFile"`)
+  - `filePath` - path to the source file (default: `undefined`)
+
+#### `get rules`
+
+Returns rules of the current lexer instance. These can be overridden without touching the prototype of a class. This is particularly useful if you need to extend a lexer only inside a certain function, but without impact on other functions.
+
+#### `set rules`
+
+Replaces rules of **the current lexer instance** with the passed ones. This won't impact all other lexer instances.
 
 #### `reset()`
 
