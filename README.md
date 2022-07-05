@@ -154,6 +154,21 @@ There are three ways to work with tokens:
 
 Checkout API for more in-depth understanding of how these methods work.
 
+### Overriding default lexer properties
+
+If there are no options provided, a lexer will use default values. If you can change those default values for your class, then here's an example how to do it:
+
+```javascript
+class MyLexer extends Lexer {
+  static get defaultOptions() {
+    return {
+      ...super.defaultOptions,
+      endOfFileTokenType: "EndOfFile"
+    }
+  }
+}
+```
+
 ## API
 
 ### `Lexer`
@@ -253,7 +268,34 @@ class Position {
   line: number
   column: number
   index: number
+  filePath?: string
 }
+```
+
+#### `add(line: number, column: number, index: number)`
+
+Creates a new `Position` instance, where `line`, `column`, and `index` have new values,
+calculated by adding the current corresponding values to passed arguments.
+
+#### `clone(): Position`
+
+Creates a new `Position` instance with the same properties.
+
+#### `toString(): string`
+
+Creates a string with information about position in the source code.
+If file path is not provided when creating a `Position` instance, then
+the resulting string will look like `line:column`. Otherwise, the string
+will look like `line:column (in filepath)`.
+
+Examples:
+
+```javascript
+new Position(1, 2, 1).toString() // 1:2
+```
+
+```javascript
+new Position(1, 2, 1, "source-file.js") // 1:2 (in source-file.js)
 ```
 
 ### `LexerError`

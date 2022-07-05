@@ -76,4 +76,24 @@ describe("Lexer", () => {
     expect(() => lexer.nextToken).not.toThrow()
     expect(lexer.rules).not.toEqual(CustomLexer.rules)
   })
+
+  it("supports custom default options", () => {
+    class CustomLexer extends Lexer {
+      static get defaultOptions() {
+        return {
+          ...super.defaultOptions,
+          endOfFileTokenType: "EndOfFile"
+        }
+      }
+    }
+
+    const lexer = new CustomLexer("")
+    expect(lexer.tokenize()).toEqual([])
+    expect(lexer.nextToken()).toEqual(
+      new Token("EndOfFile", "", {
+        start: new Position(1, 1, 0),
+        end: new Position(1, 1, 0)
+      })
+    )
+  })
 })

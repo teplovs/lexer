@@ -22,11 +22,6 @@ export type LexerOptions = {
   filePath?: string
 }
 
-const defaultOptions: LexerOptions = {
-  skip: [],
-  endOfFileTokenType: "endOfFile"
-}
-
 /**
  * Lexer is a tool to split an input string or a file into tokens.
  * In a spoken language, each noun, pronoun, verb, etc. and even spaces
@@ -62,6 +57,16 @@ export class Lexer implements Iterable<Token> {
   position: Position
 
   /**
+   * Default options, used when instantiating a lexer
+   */
+  static get defaultOptions(): LexerOptions {
+    return {
+      skip: [],
+      endOfFileTokenType: "endOfFile"
+    }
+  }
+
+  /**
    * @param input - input string to tokenize
    * @param options - lexer options
    * @param options.skip - list of token types to skip (optional)
@@ -72,6 +77,8 @@ export class Lexer implements Iterable<Token> {
     public input: string,
     public options: LexerOptions = {}
   ) {
+    const defaultOptions = (this.constructor as typeof Lexer).defaultOptions
+
     // Merge default options and options
     this.options = {
       ...defaultOptions,
